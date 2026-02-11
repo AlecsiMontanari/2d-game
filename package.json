@@ -1,0 +1,22 @@
+{
+    "name": "2d-game-android",
+    "private": true,
+    "version": "0.0.1",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "android": "npx cap add android && npx cap run android"
+    },
+    "dependencies": {
+        "@capacitor/android": "^6.0.0",
+        "@capacitor/core": "^6.0.0",
+        "phaser": "^3.80.0"
+    },
+    "devDependencies": {
+        "@capacitor/cli": "^6.0.0",
+        "typescript": "^5.2.2",
+        "vite": "^5.2.0"
+    }
+}
