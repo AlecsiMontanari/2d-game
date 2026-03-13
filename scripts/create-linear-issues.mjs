@@ -40,14 +40,22 @@ async function getTeamId() {
 }
 
 async function getProjectIdByName(teamId, name) {
-  const data = await gql(`query($teamId: String!, $name: String!) { projects(filter: { team: { id: { eq: $teamId }}, name: { eq: $name }}) { nodes { id name } } }`, { teamId, name });
-  const p = data.projects.nodes[0];
-  if (!p) throw new Error(`Project not found: ${name}`);
+  const data = await gql(
+    `query($name: String!) { projects(filter: { name: { eq: $name }}) { nodes { id name teams { nodes { id key name } } } } }`,
+    { name }
+  );
+  const projects = data.projects.nodes || [];
+  const p = projects.find((project) =>
+    (project.teams?.nodes || []).some((team) => team.id === teamId)
+  );
+  if (!p) {
+    throw new Error(`Project not found for team (${teamId}) with name: ${name}`);
+  }
   return p.id;
 }
 
 async function ensureLabel(teamId, name) {
-  const existing = await gql(`query($teamId: String!, $name: String!) { issueLabels(filter: { team: { id: { eq: $teamId }}, name: { eq: $name }}) { nodes { id name } } }`, { teamId, name });
+  const existing = await gql(`query($teamId: ID!, $name: String!) { issueLabels(filter: { team: { id: { eq: $teamId }}, name: { eq: $name }}) { nodes { id name } } }`, { teamId, name });
   if (existing.issueLabels.nodes[0]) return existing.issueLabels.nodes[0].id;
   const created = await gql(`mutation($input: IssueLabelCreateInput!) { issueLabelCreate(input: $input) { success issueLabel { id name } } }`, {
     input: { teamId, name }
