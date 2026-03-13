@@ -1,75 +1,74 @@
 import Phaser from 'phaser';
 import { Player } from '../objects/Player';
+import { GAME_CONFIG, GameState } from '../config/gameConfig';
 
 export class GameScene extends Phaser.Scene {
     private player!: Player;
-    private platforms!: Phaser.Physics.Arcade.Group; // Changed to Group for movement
+    private platforms!: Phaser.Physics.Arcade.Group;
     private obstacles!: Phaser.Physics.Arcade.Group;
     private enemies!: Phaser.Physics.Arcade.Group;
     private projectiles!: Phaser.Physics.Arcade.Group;
     private stars!: Phaser.Physics.Arcade.Group;
     private score: number = 0;
     private scoreText!: Phaser.GameObjects.Text;
-    private gameSpeed: number = 200;
-    private background!: Phaser.GameObjects.TileSprite;
+    private gameSpeed: number = GAME_CONFIG.world.initialGameSpeed;
+    private background?: Phaser.GameObjects.TileSprite;
 
-    private gameOver: boolean = false;
+    private gameState: GameState = GameState.MENU;
     private difficultyTimer: number = 0;
+    private pauseButton?: Phaser.GameObjects.Text;
+    private pauseOverlay?: Phaser.GameObjects.Container;
 
     constructor() {
         super('GameScene');
     }
 
     create() {
-        this.gameOver = false;
+        this.gameState = GameState.RUNNING;
         this.difficultyTimer = 0;
         this.score = 0;
+        this.gameSpeed = GAME_CONFIG.world.initialGameSpeed;
 
-        // Add background (will tile/repeat if needed)
         if (this.textures.exists('background')) {
             this.background = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'background');
             this.background.setOrigin(0, 0);
-            this.background.setDepth(-1); // Behind everything
+            this.background.setDepth(-1);
         }
 
         this.add.text(16, 16, 'Game Started', { fontSize: '32px', color: '#fff' });
         this.scoreText = this.add.text(16, 50, 'Score: 0', { fontSize: '24px', color: '#fff' });
+        this.pauseButton = this.add.text(this.scale.width - 16, 16, 'PAUSE', {
+            fontSize: '20px',
+            color: '#fff',
+            backgroundColor: '#222',
+            padding: { left: 10, right: 10, top: 6, bottom: 6 }
+        }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
+        this.pauseButton.on('pointerdown', () => this.togglePause());
 
-        // Platforms (Dynamic group to move them)
-        this.platforms = this.physics.add.group({
-            allowGravity: false,
-            immovable: true
-        });
-
-        // Initialize ground
+        this.platforms = this.physics.add.group({ allowGravity: false, immovable: true });
         this.createGround();
 
-        // Player (Fixed X position)
         this.player = new Player(this, 100, 400);
         this.physics.add.collider(this.player, this.platforms);
 
-        // Groups
         this.obstacles = this.physics.add.group({ allowGravity: false, immovable: true });
-        this.enemies = this.physics.add.group({ allowGravity: false }); // Enemies might have gravity? Let's say yes for now or flying
+        this.enemies = this.physics.add.group({ allowGravity: false });
         this.projectiles = this.physics.add.group({ allowGravity: false });
         this.stars = this.physics.add.group({ allowGravity: false });
 
-        // Collisions
         this.physics.add.collider(this.player, this.obstacles, this.hitObstacle, undefined, this);
-        this.physics.add.collider(this.player, this.enemies, this.hitObstacle, undefined, this); // Enemy hits player same as obstacle
+        this.physics.add.collider(this.player, this.enemies, this.hitObstacle, undefined, this);
         this.physics.add.overlap(this.player, this.stars, this.collectStar, undefined, this);
 
-        // Projectile collisions
         this.physics.add.collider(this.projectiles, this.enemies, this.hitEnemy, undefined, this);
         this.physics.add.collider(this.projectiles, this.platforms, (projectile) => projectile.destroy());
         this.physics.add.collider(this.projectiles, this.obstacles, (projectile) => projectile.destroy());
         this.physics.add.collider(this.enemies, this.platforms);
 
-        // Listener for player shoot
         this.events.on('player-shoot', this.fireProjectile, this);
 
-        // Controls
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            if (this.gameState !== GameState.RUNNING) return;
             if (pointer.x > this.scale.width / 2) {
                 this.player.handleTouchShoot();
             } else {
@@ -77,38 +76,34 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
-        // Spawners
-        this.time.addEvent({ delay: 2000, callback: this.spawnObstacle, callbackScope: this, loop: true });
-        this.time.addEvent({ delay: 3500, callback: this.spawnEnemy, callbackScope: this, loop: true });
-        this.time.addEvent({ delay: 1500, callback: this.spawnPlatform, callbackScope: this, loop: true }); // Infinite ground
+        this.input.keyboard?.on('keydown-P', () => this.togglePause());
+
+        this.time.addEvent({ delay: GAME_CONFIG.spawn.obstacleDelayMs, callback: this.spawnObstacle, callbackScope: this, loop: true });
+        this.time.addEvent({ delay: GAME_CONFIG.spawn.enemyDelayMs, callback: this.spawnEnemy, callbackScope: this, loop: true });
+        this.time.addEvent({ delay: GAME_CONFIG.spawn.platformDelayMs, callback: this.spawnPlatform, callbackScope: this, loop: true });
     }
 
     update(_time: number, delta: number) {
-        if (this.gameOver) return;
+        if (this.gameState !== GameState.RUNNING) return;
 
         this.player.update();
 
-        // Progressive difficulty: increase speed every 10 seconds
         this.difficultyTimer += delta;
-        if (this.difficultyTimer > 10000) {
-            this.gameSpeed = Math.min(this.gameSpeed + 20, 400); // Cap at 400
+        if (this.difficultyTimer > GAME_CONFIG.world.speedIncreaseIntervalMs) {
+            this.gameSpeed = Math.min(this.gameSpeed + GAME_CONFIG.world.speedIncreaseStep, GAME_CONFIG.world.maxGameSpeed);
             this.difficultyTimer = 0;
         }
 
-        // Parallax scrolling: background moves slower (30% of game speed)
         if (this.background) {
             this.background.tilePositionX += this.gameSpeed * 0.3 * (delta / 1000);
         }
 
-        // Move everything left
         const speed = -this.gameSpeed;
-
         this.platforms.setVelocityX(speed);
         this.obstacles.setVelocityX(speed);
-        this.enemies.setVelocityX(speed - 50); // Enemies move slightly faster/slower?
+        this.enemies.setVelocityX(speed + GAME_CONFIG.world.enemySpeedOffset);
         this.stars.setVelocityX(speed);
 
-        // Cleanup
         this.cleanupGroup(this.platforms);
         this.cleanupGroup(this.obstacles);
         this.cleanupGroup(this.enemies);
@@ -116,20 +111,64 @@ export class GameScene extends Phaser.Scene {
         this.cleanupGroup(this.stars);
     }
 
+    private togglePause() {
+        if (this.gameState === GameState.GAME_OVER) return;
+
+        if (this.gameState === GameState.RUNNING) {
+            this.gameState = GameState.PAUSED;
+            this.physics.world.pause();
+            this.createPauseOverlay();
+            return;
+        }
+
+        if (this.gameState === GameState.PAUSED) {
+            this.gameState = GameState.RUNNING;
+            this.physics.world.resume();
+            this.pauseOverlay?.destroy();
+            this.pauseOverlay = undefined;
+        }
+    }
+
+    private createPauseOverlay() {
+        const { width, height } = this.scale;
+        const bg = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.55);
+        const title = this.add.text(width / 2, height * 0.4, 'PAUSADO', {
+            fontSize: '48px',
+            color: '#fff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        const resumeBtn = this.add.text(width / 2, height * 0.55, 'RETOMAR', {
+            fontSize: '30px',
+            color: '#0f0',
+            backgroundColor: '#222',
+            padding: { left: 16, right: 16, top: 8, bottom: 8 }
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+        resumeBtn.on('pointerdown', () => this.togglePause());
+
+        const restartBtn = this.add.text(width / 2, height * 0.67, 'REINICIAR', {
+            fontSize: '28px',
+            color: '#fff',
+            backgroundColor: '#333',
+            padding: { left: 16, right: 16, top: 8, bottom: 8 }
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+        restartBtn.on('pointerdown', () => this.scene.restart());
+
+        this.pauseOverlay = this.add.container(0, 0, [bg, title, resumeBtn, restartBtn]);
+        this.pauseOverlay.setDepth(1000);
+    }
+
     private createGround() {
         const groundY = this.scale.height - 32;
-        // Initial ground
         for (let i = 0; i < Math.ceil(this.scale.width / 32) + 5; i++) {
             const platform = this.platforms.create(i * 32, groundY, 'platform_placeholder');
             platform.setOrigin(0, 0);
-            platform.body.updateFromGameObject(); // Important for static/dynamic body sizing
+            platform.body.updateFromGameObject();
         }
     }
 
     private spawnPlatform() {
-        // Simple infinite floor: check if we need more floor at the right
-        // Actually, better strategy for runner: spawn segments.
-        // For now, let's just spam blocks at the far right.
+        if (this.gameState !== GameState.RUNNING) return;
         const groundY = this.scale.height - 32;
         const rightmost = this.platforms.getChildren().reduce((max: number, p: any) => Math.max(max, p.x), 0);
 
@@ -141,6 +180,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private spawnObstacle() {
+        if (this.gameState !== GameState.RUNNING) return;
         const groundY = this.scale.height - 32;
         const x = this.scale.width + 50;
         const obstacle = this.obstacles.create(x, groundY, 'obstacle_placeholder');
@@ -148,15 +188,14 @@ export class GameScene extends Phaser.Scene {
     }
 
     private spawnEnemy() {
+        if (this.gameState !== GameState.RUNNING) return;
         const x = this.scale.width + 50;
         const y = Phaser.Math.Between(200, 450);
 
-        // Use enemy spritesheet if available, fallback to placeholder
         const spriteKey = this.textures.exists('enemy') ? 'enemy' : 'enemy_placeholder';
         const enemy = this.enemies.create(x, y, spriteKey);
         enemy.setBounce(0);
 
-        // Play enemy animation if available
         if (this.anims.exists('enemy_move')) {
             enemy.play('enemy_move');
         }
@@ -164,7 +203,7 @@ export class GameScene extends Phaser.Scene {
 
     private fireProjectile(x: number, y: number) {
         const projectile = this.projectiles.create(x + 20, y, 'projectile_placeholder');
-        projectile.setVelocityX(400);
+        projectile.setVelocityX(GAME_CONFIG.projectile.speed);
     }
 
     private cleanupGroup(group: Phaser.Physics.Arcade.Group) {
@@ -178,28 +217,26 @@ export class GameScene extends Phaser.Scene {
     }
 
     private hitObstacle(_player: any, _obstacle: any) {
-        if (this.gameOver) return;
+        if (this.gameState === GameState.GAME_OVER) return;
 
-        this.gameOver = true;
+        this.gameState = GameState.GAME_OVER;
         this.physics.pause();
+        this.pauseOverlay?.destroy();
         this.player.setTint(0xff0000);
 
         const { width, height } = this.scale;
 
-        // Game Over text
         this.add.text(width / 2, height * 0.3, 'GAME OVER', {
             fontSize: '64px',
             color: '#ff0000',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        // Final score
         this.add.text(width / 2, height * 0.45, `Final Score: ${this.score}`, {
             fontSize: '32px',
             color: '#fff'
         }).setOrigin(0.5);
 
-        // Restart button
         const restartBtn = this.add.text(width / 2, height * 0.6, 'RESTART', {
             fontSize: '32px',
             color: '#0f0',
@@ -211,7 +248,6 @@ export class GameScene extends Phaser.Scene {
         restartBtn.on('pointerover', () => restartBtn.setStyle({ fill: '#ff0' }));
         restartBtn.on('pointerout', () => restartBtn.setStyle({ fill: '#0f0' }));
 
-        // Main Menu button
         const menuBtn = this.add.text(width / 2, height * 0.75, 'MAIN MENU', {
             fontSize: '28px',
             color: '#aaa',

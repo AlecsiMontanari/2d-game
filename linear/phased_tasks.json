@@ -9,28 +9,48 @@
           "description": "Extrair velocidade, spawn rates, gravidade e cooldowns de valores hardcoded para um arquivo único de configuração.",
           "priority": 1,
           "estimate": 3,
-          "labels": ["phase-1", "tech", "gameplay"]
+          "labels": [
+            "phase-1",
+            "tech",
+            "gameplay"
+          ],
+          "status": "completed"
         },
         {
           "title": "Adicionar flag de ambiente para physics debug",
           "description": "Desabilitar debug de física em produção e manter habilitável no ambiente de desenvolvimento.",
           "priority": 1,
           "estimate": 2,
-          "labels": ["phase-1", "tech", "performance"]
+          "labels": [
+            "phase-1",
+            "tech",
+            "performance"
+          ],
+          "status": "completed"
         },
         {
           "title": "Implementar estados explícitos de jogo (menu/running/paused/gameover)",
           "description": "Refatorar loop para usar máquina de estados simples e suportar pause/resume real.",
           "priority": 1,
           "estimate": 5,
-          "labels": ["phase-1", "tech", "ux"]
+          "labels": [
+            "phase-1",
+            "tech",
+            "ux"
+          ],
+          "status": "completed"
         },
         {
           "title": "Atualizar README com checklist de release Android",
           "description": "Adicionar checklist mínimo para build candidata (versão, ícones, permissões, testes em device).",
           "priority": 2,
           "estimate": 2,
-          "labels": ["phase-1", "docs", "release"]
+          "labels": [
+            "phase-1",
+            "docs",
+            "release"
+          ],
+          "status": "completed"
         }
       ]
     },
@@ -42,28 +62,43 @@
           "description": "Implementar obstáculos com hitbox e comportamento distintos para aumentar variedade.",
           "priority": 1,
           "estimate": 5,
-          "labels": ["phase-2", "gameplay"]
+          "labels": [
+            "phase-2",
+            "gameplay"
+          ]
         },
         {
           "title": "Implementar padrões de spawn por dificuldade",
           "description": "Criar ao menos 2 padrões de spawn por faixa de dificuldade com variação temporal.",
           "priority": 1,
           "estimate": 5,
-          "labels": ["phase-2", "gameplay", "balance"]
+          "labels": [
+            "phase-2",
+            "gameplay",
+            "balance"
+          ]
         },
         {
           "title": "Adicionar sistema de combo/multiplicador",
           "description": "Pontuação bônus por sequência de acertos sem dano.",
           "priority": 2,
           "estimate": 3,
-          "labels": ["phase-2", "gameplay", "score"]
+          "labels": [
+            "phase-2",
+            "gameplay",
+            "score"
+          ]
         },
         {
           "title": "Melhorar feedback de combate (partículas/flash/shake)",
           "description": "Adicionar feedback visual no tiro e no hit para percepção de impacto.",
           "priority": 2,
           "estimate": 3,
-          "labels": ["phase-2", "vfx", "gameplay"]
+          "labels": [
+            "phase-2",
+            "vfx",
+            "gameplay"
+          ]
         }
       ]
     },
@@ -75,28 +110,44 @@
           "description": "Criar controles touch persistentes com estados visuais pressionado/solto.",
           "priority": 1,
           "estimate": 5,
-          "labels": ["phase-3", "mobile", "ux"]
+          "labels": [
+            "phase-3",
+            "mobile",
+            "ux"
+          ]
         },
         {
           "title": "Adaptar layout para múltiplos aspect ratios",
           "description": "Revisar posicionamento de HUD e zona jogável para telas 16:9, 18:9 e tablets.",
           "priority": 1,
           "estimate": 3,
-          "labels": ["phase-3", "mobile", "ui"]
+          "labels": [
+            "phase-3",
+            "mobile",
+            "ui"
+          ]
         },
         {
           "title": "Tela de pausa com retomada/reinício",
           "description": "Adicionar overlay de pause acessível durante partida.",
           "priority": 2,
           "estimate": 3,
-          "labels": ["phase-3", "ux", "ui"]
+          "labels": [
+            "phase-3",
+            "ux",
+            "ui"
+          ]
         },
         {
           "title": "Revisar legibilidade de fontes e contraste",
           "description": "Ajustar escala tipográfica e contraste para uso em tela pequena.",
           "priority": 2,
           "estimate": 2,
-          "labels": ["phase-3", "ui", "accessibility"]
+          "labels": [
+            "phase-3",
+            "ui",
+            "accessibility"
+          ]
         }
       ]
     },
@@ -108,28 +159,44 @@
           "description": "Escolher tema visual e padronizar paleta para assets e UI.",
           "priority": 2,
           "estimate": 2,
-          "labels": ["phase-4", "art", "design"]
+          "labels": [
+            "phase-4",
+            "art",
+            "design"
+          ]
         },
         {
           "title": "Integrar trilha em loop e SFX essenciais",
           "description": "Adicionar áudio para pulo, tiro, hit e game over com controle de volume.",
           "priority": 1,
           "estimate": 3,
-          "labels": ["phase-4", "audio", "gameplay"]
+          "labels": [
+            "phase-4",
+            "audio",
+            "gameplay"
+          ]
         },
         {
           "title": "Adicionar metas de partida (objetivos curtos)",
           "description": "Criar objetivos por run (tempo sobrevivido/eliminações) para orientar jogador.",
           "priority": 2,
           "estimate": 3,
-          "labels": ["phase-4", "gameplay", "retention"]
+          "labels": [
+            "phase-4",
+            "gameplay",
+            "retention"
+          ]
         },
         {
           "title": "Tela de resultados com estatísticas da run",
           "description": "Exibir tempo, precisão, score e recorde ao final da partida.",
           "priority": 2,
           "estimate": 3,
-          "labels": ["phase-4", "ui", "analytics"]
+          "labels": [
+            "phase-4",
+            "ui",
+            "analytics"
+          ]
         }
       ]
     },
@@ -141,28 +208,44 @@
           "description": "Fechar identidade do app no Capacitor/Android.",
           "priority": 1,
           "estimate": 3,
-          "labels": ["phase-5", "release", "android"]
+          "labels": [
+            "phase-5",
+            "release",
+            "android"
+          ]
         },
         {
           "title": "Revisar permissões Android (mínimo necessário)",
           "description": "Auditar e remover permissões não essenciais.",
           "priority": 1,
           "estimate": 2,
-          "labels": ["phase-5", "security", "android"]
+          "labels": [
+            "phase-5",
+            "security",
+            "android"
+          ]
         },
         {
           "title": "Criar tela About/Privacy e política hospedada",
           "description": "Adicionar link de privacidade para conformidade de loja.",
           "priority": 2,
           "estimate": 2,
-          "labels": ["phase-5", "legal", "release"]
+          "labels": [
+            "phase-5",
+            "legal",
+            "release"
+          ]
         },
         {
           "title": "Preparar descrição da loja e classificação indicativa",
           "description": "Produzir texto e metadados de publicação da demo.",
           "priority": 3,
           "estimate": 2,
-          "labels": ["phase-5", "marketing", "release"]
+          "labels": [
+            "phase-5",
+            "marketing",
+            "release"
+          ]
         }
       ]
     },
@@ -174,28 +257,44 @@
           "description": "Validar estabilidade em diferentes faixas de hardware.",
           "priority": 1,
           "estimate": 5,
-          "labels": ["phase-6", "qa", "android"]
+          "labels": [
+            "phase-6",
+            "qa",
+            "android"
+          ]
         },
         {
           "title": "Medir FPS, travamentos, bateria e aquecimento",
           "description": "Criar checklist de performance para decisão de release.",
           "priority": 1,
           "estimate": 3,
-          "labels": ["phase-6", "performance", "qa"]
+          "labels": [
+            "phase-6",
+            "performance",
+            "qa"
+          ]
         },
         {
           "title": "Instrumentar eventos básicos de telemetria",
           "description": "Registrar start run, game over e duração para leitura de retenção inicial.",
           "priority": 2,
           "estimate": 3,
-          "labels": ["phase-6", "analytics", "tech"]
+          "labels": [
+            "phase-6",
+            "analytics",
+            "tech"
+          ]
         },
         {
           "title": "Corrigir top 10 problemas antes da publicação",
           "description": "Triagem e resolução dos principais bugs levantados no soft launch.",
           "priority": 1,
           "estimate": 8,
-          "labels": ["phase-6", "qa", "release"]
+          "labels": [
+            "phase-6",
+            "qa",
+            "release"
+          ]
         }
       ]
     }

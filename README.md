@@ -23,6 +23,17 @@ Since the automated setup encountered issues finding `npm`, please follow these 
     npm run android
     ```
 
+## Android release checklist (demo)
+
+- [ ] Confirm app `version` and changelog notes for this build.
+- [ ] Validate app name, package id, icon and splash are final.
+- [ ] Review Android permissions and keep only the minimum required.
+- [ ] Run smoke tests on at least 3 Android devices (low/mid/high tier).
+- [ ] Verify gameplay loop: menu → run → pause/resume → game over → restart.
+- [ ] Check FPS stability, battery usage and overheating on a 10+ minute run.
+- [ ] Confirm privacy/about screen and policy URL are available in-app.
+- [ ] Produce signed APK/AAB and archive build artifacts.
+
 ## Project Structure
 -   `src/main.ts`: Entry point.
 -   `src/scenes/`: Game scenes (Boot, Game).
