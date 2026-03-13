@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { MainMenuScene } from './scenes/MainMenuScene';
 import { GameScene } from './scenes/GameScene';
+import { GAME_CONFIG } from './config/gameConfig';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -12,8 +13,8 @@ const config: Phaser.Types.Core.GameConfig = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300, x: 0 },
-            debug: true
+            gravity: { y: GAME_CONFIG.physics.gravityY, x: 0 },
+            debug: GAME_CONFIG.physics.debug
         }
     },
     scale: {
